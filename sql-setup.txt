@@ -1,0 +1,42 @@
+!NOTE: appuser is just a name. it can be anyname!
+----------------------------------------------------------------------------
+<creating new user>
+
+CREATE USER appuser WITH ENCRYPTED PASSWORD 'strongpassword';
+
+----------------------------------------------------------------------------
+
+<giving priveleges to appuser>
+
+sudo -u postgres psql
+
+SHOW hba_file;
+
+->navigate to pg_hba.conf and add the following<-
+# IPv4 local connections:
+host    postgres        darshuser        127.0.0.1/32            trust
+# or for all databases:
+host    all             darshuser        127.0.0.1/32            trust
+
+-----------------------------------------------------------------------------
+
+<export the following in terminal>
+
+export PGHOST=localhost
+export PGPORT=5432
+export PGUSER=appuser
+export PGPASSWORD=strongpassword
+export PGDATABASE=appdb
+
+------------------------------------------------------------------------------
+
+<after creating table, enter the following to change owner of table from
+postgres to appuser>
+
+sudo -u postgres psql -d postgres
+-- Change owner of a specific table
+ALTER TABLE submissions_page2 OWNER TO appuser;
+-- Also change the owner of the sequence (for SERIAL columns)
+ALTER SEQUENCE submissions_page2_id_seq OWNER TO appuser;
+
+-------------------------------------------------------------------------------
