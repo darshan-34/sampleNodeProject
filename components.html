@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic JS Components Sample</title>
+  <link rel="stylesheet" type="" href="components-style.css">
+</head>
+
+<body>
+  <h1>Basic JavaScript Component Interaction</h1>
+  <div class="container">
+    <label for="textInput">Text Input:</label>
+    <input type="text" id="textInput" placeholder="Enter text">
+  </div>
+  <div class="container">
+    <label for="dropdown">Dropdown List (Select):</label>
+    <select id="dropdown">
+      <option value="option1">Option 1</option>
+      <option value="option2">Option 2</option>
+      <option value="option3">Option 3</option>
+    </select>
+  </div>
+  <div class="container">
+    <label>Checkboxes (multiple select):</label>
+    <input type="checkbox" id="check1" value="Checkbox 1">
+    <label for="check1" style="display: inline;">Checkbox 1</label><br>
+    <input type="checkbox" id="check2" value="Checkbox 2">
+    <label for="check2" style="display: inline;">Checkbox 2</label><br>
+  </div>
+  <div class="container">
+    <label>Radio Buttons (single select):</label>
+    <input type="radio" id="radio1" name="radioGroup" value="Radio 1">
+    <label for="radio1" style="display: inline;">Radio 1</label><br>
+    <input type="radio" id="radio2" name="radioGroup" value="Radio 2">
+    <label for="radio2" style="display: inline;">Radio 2</label><br>
+  </div>
+  <div class="container">
+    <label for="textareaInput">Textarea:</label>
+    <textarea id="textareaInput" rows="4" placeholder="Enter multiline text"></textarea>
+  </div>
+  <script>
+    async function submitAll() {
+      const payload = {
+        text: document.getElementById('textInput').value,
+        dropdown: document.getElementById('dropdown').value,
+        checkboxes: ['check1','check2'].map(id => document.getElementById(id))
+          .filter(el => el.checked).map(el => el.value),
+        radio: Array.from(document.getElementsByName('radioGroup'))
+          .find(r => r.checked)?.value || null,
+        textarea: document.getElementById('textareaInput').value
+      };
+
+      const res = await fetch('http://localhost:3000/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      displayOutput(`I am a Server response: ${JSON.stringify(data)}`);
+    }
+  </script>
+  <button onclick="submitAll()">Send to backend</button><br><br>
+  <button><a href="components-page2.html">Go to second page</a></button>
+</body>
+</html>
