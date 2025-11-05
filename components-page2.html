@@ -1,12 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
-    <link href="css/components-page2.css" rel="stylesheet">
-  </head>
-  <body>
-  
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Data Entry</title>
+  <link href="components-page2.css" rel="stylesheet">
+</head>
+<body>
+  <h1>Table Data Entry Form</h1>
+
+  <div class="container">
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>State</th>
+          <th>Occupation</th>
+          <th>Phone Number</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Rows will be added here dynamically -->
+      </tbody>
+    </table>
+ 
+    <button onclick="addRow()">Add New Row</button>
+    <button onclick="submitTableData()">Submit All Data</button>
+    <button><a href="components.html" style="text-decoration: none; color: inherit;">Back to First Page</a></button>
+  </div>
+ 
+  <div id="outputArea" class="output-area" style="display: none;"></div>
+
+  <script>
+    let rowCount = 0;
+
+    function addRow() {
+      const tableBody = document.getElementById('tableBody');
+      const newRow = document.createElement('tr');
+      rowCount++;
+ 
+      newRow.innerHTML = `
+        <td><input type="text" id="name${rowCount}" placeholder="Enter name" required></td>
+        <td><input type="number" id="age${rowCount}" placeholder="Enter age" min="1" max="150" required></td>
+        <td><input type="text" id="state${rowCount}" placeholder="Enter state" required></td>
+        <td><input type="text" id="occupation${rowCount}" placeholder="Enter occupation" required></td>
+        <td><input type="tel" id="phonenumber${rowCount}" placeholder="Enter phone number" required></td>
+        <td><button onclick="removeRow(this)">Remove</button></td>
+      `;
+ 
+      tableBody.appendChild(newRow);
+    }
+
+    function removeRow(button) {
+      const row = button.parentNode.parentNode;
+      row.parentNode.removeChild(row);
+    }
+
+    async function submitTableData() {
+      const rows = document.querySelectorAll('#tableBody tr');
+      const tableData = [];
+
+      // Validate and collect data from all rows
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.querySelector(`input[id^="name"]`).value.trim();
+        const age = row.querySelector(`input[id^="age"]`).value.trim();
+        const state = row.querySelector(`input[id^="state"]`).value.trim();
+        const occupation = row.querySelector(`input[id^="occupation"]`).value.trim();
+        const phonenumber = row.querySelector(`input[id^="phonenumber"]`).value.trim();
+
+        // Basic validation
+        if (!name || !age || !state || !occupation || !phonenumber) {
+          alert('Please fill in all fields in all rows');
+          return;
+        }
+
+        if (age < 1 || age > 150) {
+          alert('Please enter a valid age (1-150)');
+          return;
+        }
+
+        tableData.push({
+          name,
+          age: parseInt(age),
+          state,
+          occupation,
+          phonenumber
+        });
+      }
+
+      if (tableData.length === 0) {
+        alert('Please add at least one row of data');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/submit-table', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(tableData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        displayOutput(`Data submitted successfully! Inserted ${result.insertedCount} rows.`);
+ 
+        // Clear the table after successful submission
+        document.getElementById('tableBody').innerHTML = '';
+        rowCount = 0;
+
+      }
+      catch (error) {
+        console.error('Error:', error);
+        displayOutput(`Error submitting data: ${error.message}`);
+      }
+    }
+
+    function displayOutput(message) {
+        const outputArea = document.getElementById('outputArea');
+        outputArea.textContent = message;
+        outputArea.style.display = 'block';
+    }
+
+  // Add one initial row when page loads
+  window.onload = addRow;
+  </script>
+</body>
 </html>
