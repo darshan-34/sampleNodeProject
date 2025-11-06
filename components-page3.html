@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View All Data</title>
+  <link rel="stylesheet" href="components-page3.css">
+</head>
+<body>
+  <h1>View All Submitted Data</h1>
+
+  <div class="container">
+    <h2>Form Submissions (Page 1)</h2>
+    <div id="formData">
+      <div class="loading">Loading form data...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Table Data (Page 2)</h2>
+    <div id="tableData">
+      <div class="loading">Loading table data...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <button class="button" onclick="refreshData()">Refresh Data</button>
+    <a href="components-page2.html" class="button">Back to Page 2</a>
+    <a href="components.html" class="button">Back to Page 1</a>
+  </div>
+
+  <script>
+    async function loadFormData() {
+      try {
+        const response = await fetch('http://localhost:3000/get-form-data');
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+        const data = await response.json();
+        
+        const formDataDiv = document.getElementById('formData');
+        
+        if (data.ok && data.data.length > 0) {
+          let html = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Text Input</th>
+                  <th>Dropdown</th>
+                  <th>Checkboxes</th>
+                  <th>Radio</th>
+                  <th>Textarea</th>
+                  <th>Submitted At</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          
+          data.data.forEach(row => {
+            html += `
+              <tr>
+                <td>${row.id}</td>
+                <td>${escapeHtml(row.text || '')}</td>
+                <td>${escapeHtml(row.dropdown || '')}</td>
+                <td>${Array.isArray(row.checkboxes) ? row.checkboxes.join(', ') : ''}</td>
+                <td>${escapeHtml(row.radio || '')}</td>
+                <td>${escapeHtml(row.textarea || '')}</td>
+                <td>${new Date(row.created_at).toLocaleString()}</td>
+              </tr>
+            `;
+          });
+          
+          html += `</tbody></table>`;
+          html += `<p><strong>Total records:</strong> ${data.data.length}</p>`;
+          formDataDiv.innerHTML = html;
+        } else {
+          formDataDiv.innerHTML = '<p>No form data found.</p>';
+        }
+      } catch (error) {
+        console.error('Error loading form data:', error);
+        document.getElementById('formData').innerHTML = 
+          `<div class="error">Error loading form data: ${error.message}</div>`;
+      }
+    }
+
+    async function loadTableData() {
+      try {
+        const response = await fetch('http://localhost:3000/get-table-data');
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+        const data = await response.json();
+        
+        const tableDataDiv = document.getElementById('tableData');
+        
+        if (data.ok && data.data.length > 0) {
+          let html = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>State</th>
+                  <th>Occupation</th>
+                  <th>Phone Number</th>
+                  <th>Submitted At</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          
+          data.data.forEach(row => {
+            html += `
+              <tr>
+                <td>${row.id}</td>
+                <td>${escapeHtml(row.name || '')}</td>
+                <td>${row.age}</td>
+                <td>${escapeHtml(row.state || '')}</td>
+                <td>${escapeHtml(row.occupation || '')}</td>
+                <td>${escapeHtml(row.phonenumber || '')}</td>
+                <td>${new Date(row.created_at).toLocaleString()}</td>
+              </tr>
+            `;
+          });
+          
+          html += `</tbody></table>`;
+          html += `<p><strong>Total records:</strong> ${data.data.length}</p>`;
+          tableDataDiv.innerHTML = html;
+        } else {
+          tableDataDiv.innerHTML = '<p>No table data found.</p>';
+        }
+      } catch (error) {
+        console.error('Error loading table data:', error);
+        document.getElementById('tableData').innerHTML = 
+          `<div class="error">Error loading table data: ${error.message}</div>`;
+      }
+    }
+
+    function refreshData() {
+      loadFormData();
+      loadTableData();
+    }
+
+    function escapeHtml(unsafe) {
+      if (unsafe === null || unsafe === undefined) return '';
+      return unsafe
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFormData();
+      loadTableData();
+    });
+  </script>
+</body>
+</html>

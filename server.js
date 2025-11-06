@@ -69,6 +69,32 @@ app.post('/submit-table', async (req, res) => {
   }
 });
 
+// Route to get form data from first page
+app.get('/get-form-data', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM submissions ORDER BY created_at DESC'
+    );
+    res.json({ ok: true, data: result.rows });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: 'Failed to fetch form data' });
+  }
+});
+
+// Route to get table data from second page
+app.get('/get-table-data', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM submissions_page2 ORDER BY created_at DESC'
+    );
+    res.json({ ok: true, data: result.rows });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: 'Failed to fetch table data' });
+  }
+});
+
 // Health check route
 app.get('/health', (_, res) => res.send('healthy'));
 
