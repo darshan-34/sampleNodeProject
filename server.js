@@ -95,6 +95,34 @@ app.get('/get-table-data', async (req, res) => {
   }
 });
 
+// NEW ROUTE: Delete all form data
+app.delete('/delete-form-data', async (req, res) => {
+  try {
+    const result = await pool.query('DELETE FROM submissions');
+    res.json({ 
+      ok: true, 
+      message: `Successfully deleted ${result.rowCount} form data records` 
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: 'Failed to delete form data' });
+  }
+});
+
+// NEW ROUTE: Delete all table data
+app.delete('/delete-table-data', async (req, res) => {
+  try {
+    const result = await pool.query('DELETE FROM submissions_page2');
+    res.json({ 
+      ok: true, 
+      message: `Successfully deleted ${result.rowCount} table data records` 
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: 'Failed to delete table data' });
+  }
+});
+
 // Health check route
 app.get('/health', (_, res) => res.send('healthy'));
 

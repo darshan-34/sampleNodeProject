@@ -68,3 +68,23 @@ tr:nth-child(even) {
   border-radius: 4px;
   margin: 10px 0;
 }
+
+.action-buttons {
+  margin-bottom: 15px;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+

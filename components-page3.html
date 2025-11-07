@@ -11,6 +11,9 @@
 
   <div class="container">
     <h2>Form Submissions (Page 1)</h2>
+    <div class="action-buttons">
+      <button onclick="deleteAllFormData()" class="delete-btn">Delete All Form Data</button>
+    </div>
     <div id="formData">
       <div class="loading">Loading form data...</div>
     </div>
@@ -18,6 +21,9 @@
 
   <div class="container">
     <h2>Table Data (Page 2)</h2>
+    <div class="action-buttons">
+      <button onclick="deleteAllTableData()" class="delete-btn">Delete All Table Data</button>
+    </div>
     <div id="tableData">
       <div class="loading">Loading table data...</div>
     </div>
@@ -135,6 +141,52 @@
         console.error('Error loading table data:', error);
         document.getElementById('tableData').innerHTML = 
           `<div class="error">Error loading table data: ${error.message}</div>`;
+      }
+    }
+
+    async function deleteAllFormData() {
+      if (!confirm('Are you sure you want to delete ALL form data? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/delete-form-data', {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        alert(result.message || 'All form data deleted successfully!');
+        loadFormData(); // Refresh the display
+      } catch (error) {
+        console.error('Error deleting form data:', error);
+        alert('Error deleting form data: ' + error.message);
+      }
+    }
+
+    async function deleteAllTableData() {
+      if (!confirm('Are you sure you want to delete ALL table data? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/delete-table-data', {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        alert(result.message || 'All table data deleted successfully!');
+        loadTableData(); // Refresh the display
+      } catch (error) {
+        console.error('Error deleting table data:', error);
+        alert('Error deleting table data: ' + error.message);
       }
     }
 
